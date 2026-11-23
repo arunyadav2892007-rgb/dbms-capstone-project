@@ -4,9 +4,9 @@
   "description": "AI-Powered E-Commerce Recommendation Engine Database System in Pure Node.js and SQL",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "seed": "node src/seed.js",
-    "import-amazon": "node src/import_amazon.js"
+    "start": "node --experimental-sqlite server.js",
+    "seed": "node --experimental-sqlite src/seed.js",
+    "import-amazon": "node --experimental-sqlite src/import_amazon.js"
   },
   "engines": {
     "node": ">=22.5.0"

@@ -12,4 +12,4 @@ COPY ecommerce_recommendation.db ./
 EXPOSE 8000
 
 ENV PORT=8000
-CMD ["node", "server.js"]
+CMD ["node", "--experimental-sqlite", "server.js"]
