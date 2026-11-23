@@ -1,0 +1,89 @@
+/* Custom styles for Nexus AI E-Commerce & DBMS */
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Nav Tab States */
+.nav-tab {
+    color: #94a3b8;
+}
+
+.nav-tab:hover {
+    color: #f8fafc;
+    background-color: #1e293b;
+}
+
+.nav-tab.active {
+    color: #ffffff;
+    background-color: #312e81; /* Indigo 900 */
+    border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+/* SQL preset buttons */
+.sql-preset-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    transition: all 0.15s ease-in-out;
+}
+
+.sql-preset-btn:hover {
+    background-color: #334155;
+    color: #ffffff;
+    border-color: #6366f1;
+}
+
+/* Product Card animations */
+.product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px -10px rgba(99, 102, 241, 0.25);
+}
+
+/* Stock status badges */
+.badge-in-stock {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-low-stock {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-out-of-stock {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Category filter pill active state */
+.cat-pill.active {
+    background-color: #4f46e5;
+    color: #ffffff;
+    border-color: #6366f1;
+}

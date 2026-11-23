@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Server",
+      "type": "shell",
+      "command": "npm start",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Import Amazon Dataset",
+      "type": "shell",
+      "command": "npm run import-amazon",
+      "problemMatcher": []
+    },
+    {
+      "label": "Reset Baseline DB",
+      "type": "shell",
+      "command": "npm run seed",
+      "problemMatcher": []
+    }
+  ]
+}

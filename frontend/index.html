@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusAI — Intelligent E-Commerce Recommendation & DBMS Engine</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                        },
+                        darkBg: '#0b0f19',
+                        cardBg: '#111827',
+                        borderBg: '#1f2937'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for DBMS Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+    <!-- TOP ANNOUNCEMENT & SYSTEM STATUS -->
+    <div class="bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-950 px-4 py-1.5 text-xs text-indigo-200 border-b border-indigo-800/40 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="font-medium text-white">DBMS Capstone:</span>
+            <span>Real-time Behavioral Clickstream Tracking, ACID Inventory Triggers & Automated AI Personalization</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="hidden md:inline text-indigo-300">SQLite 3.50+ Engine • Real-Time SQL Triggers Active</span>
+            <button onclick="resetDemoData()" class="hover:text-white text-indigo-300 underline text-xs">Reset Baseline DB</button>
+        </div>
+    </div>
+
+    <!-- MAIN NAVBAR -->
+    <header class="sticky top-0 z-40 bg-cardBg/90 backdrop-blur-md border-b border-borderBg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- BRAND LOGO -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('storefront')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">NEXUS AI</span>
+                            <span class="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">DBMS v1.0</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 -mt-1 hidden sm:block">Intelligent E-Commerce Engine</p>
+                    </div>
+                </div>
+
+                <!-- NAVIGATION TABS -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <button onclick="switchTab('storefront')" id="nav-storefront" class="nav-tab active flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i data-lucide="store" class="w-4 h-4"></i>
+                        <span>Storefront</span>
+                    </button>
+                    <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-tab flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                        <span>DBMS Analytics</span>
+                    </button>
+                    <button onclick="switchTab('sql-console')" id="nav-sql-console" class="nav-tab flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i data-lucide="terminal" class="w-4 h-4"></i>
+                        <span>SQL Console</span>
+                    </button>
+                    <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-tab flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i data-lucide="boxes" class="w-4 h-4"></i>
+                        <span>Inventory</span>
+                    </button>
+                    <button onclick="switchTab('orders')" id="nav-orders" class="nav-tab flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i data-lucide="receipt" class="w-4 h-4"></i>
+                        <span>Orders</span>
+                    </button>
+                </nav>
+
+                <!-- RIGHT CONTROLS: PERSONA SWITCHER & CART -->
+                <div class="flex items-center space-x-3">
+                    
+                    <!-- CUSTOMER PERSONA SELECTOR -->
+                    <div class="relative">
+                        <button id="persona-dropdown-btn" onclick="togglePersonaDropdown()" class="flex items-center space-x-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 transition-all">
+                            <img id="current-user-avatar" src="" alt="Avatar" class="w-6 h-6 rounded-full object-cover border border-indigo-400">
+                            <div class="text-left hidden lg:block">
+                                <div class="flex items-center space-x-1">
+                                    <span id="current-user-name" class="font-semibold text-white">Alex Rivera</span>
+                                    <span id="current-user-segment" class="text-[9px] bg-indigo-500/30 text-indigo-300 px-1 rounded">VIP</span>
+                                </div>
+                                <div id="current-user-persona" class="text-[10px] text-slate-400 truncate max-w-[120px]">Tech Enthusiast</div>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+                        </button>
+
+                        <!-- PERSONA DROPDOWN MENU -->
+                        <div id="persona-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-2 z-50">
+                            <div class="px-2 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800 flex justify-between items-center">
+                                <span>Switch Customer Persona</span>
+                                <span class="text-indigo-400 lowercase">live re-scoring</span>
+                            </div>
+                            <div id="persona-list" class="mt-1 space-y-1 max-h-72 overflow-y-auto">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CART BUTTON -->
+                    <button onclick="toggleCartDrawer()" class="relative p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-colors">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-indigo-500 text-white font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-lg border border-slate-900">0</span>
+                    </button>
+
+                    <!-- MOBILE MENU TOGGLE -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg bg-slate-800 text-slate-300">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- MOBILE NAV -->
+        <div id="mobile-nav" class="hidden md:hidden border-t border-slate-800 bg-slate-900 px-4 py-2 space-y-1">
+            <button onclick="switchTab('storefront'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded text-sm text-slate-300 hover:bg-slate-800">Storefront</button>
+            <button onclick="switchTab('analytics'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded text-sm text-slate-300 hover:bg-slate-800">DBMS Analytics</button>
+            <button onclick="switchTab('sql-console'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded text-sm text-slate-300 hover:bg-slate-800">SQL Console</button>
+            <button onclick="switchTab('inventory'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded text-sm text-slate-300 hover:bg-slate-800">Inventory</button>
+            <button onclick="switchTab('orders'); toggleMobileMenu()" class="w-full text-left py-2 px-3 rounded text-sm text-slate-300 hover:bg-slate-800">Orders</button>
+        </div>
+    </header>
+
+    <!-- LIVE CLICKSTREAM TOAST NOTIFIER -->
+    <div id="live-clickstream-toast" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900/95 border border-indigo-500/40 shadow-2xl shadow-indigo-500/20 backdrop-blur-md rounded-xl p-3 max-w-sm flex items-start space-x-3">
+            <div class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 mt-0.5">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <div class="text-xs font-semibold text-white flex items-center space-x-1.5">
+                    <span>SQL Trigger Fired</span>
+                    <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1 py-0.2 rounded font-mono">trg_affinity</span>
+                </div>
+                <p id="clickstream-toast-msg" class="text-xs text-slate-300 mt-0.5 leading-snug">Tracked dwell time • User affinity recalculated.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ==================================================================== -->
+        <!-- TAB 1: STOREFRONT & AI RECOMMENDATIONS -->
+        <!-- ==================================================================== -->
+        <section id="tab-storefront" class="space-y-8">
+            
+            <!-- AI PERSONALIZATION HERO BANNER -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-950 via-slate-900 to-purple-950 border border-indigo-900/60 p-6 md:p-8 shadow-2xl">
+                <div class="relative z-10 max-w-3xl">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-medium mb-3">
+                        <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+                        <span>AI Hybrid Recommender Active</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                        <span id="hero-persona-label" class="text-white font-semibold">Tech Enthusiast</span>
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
+                        Curated for <span id="hero-user-name" class="bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">Alex Rivera</span>
+                    </h1>
+                    <p id="hero-ai-explanation" class="text-slate-300 text-sm md:text-base mt-2 leading-relaxed">
+                        Our real-time Bayesian scoring joins collaborative co-purchases with your clickstream dwell time to adapt recommendations instantly.
+                    </p>
+                    <div class="mt-4 flex flex-wrap items-center gap-3">
+                        <div class="flex items-center space-x-1.5 text-xs text-slate-400 bg-slate-900/70 border border-slate-800 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            <span>Dwell Tracking: <strong class="text-white">Active</strong></span>
+                        </div>
+                        <div class="flex items-center space-x-1.5 text-xs text-slate-400 bg-slate-900/70 border border-slate-800 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-400"></i>
+                            <span>Affinity Vector: <strong id="hero-top-category" class="text-white">Computing</strong></span>
+                        </div>
+                        <div class="flex items-center space-x-1.5 text-xs text-slate-400 bg-slate-900/70 border border-slate-800 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="database" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span>ACID Stock: <strong class="text-white">Guaranteed</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Background decoration -->
+                <div class="absolute -right-10 -bottom-10 w-80 h-80 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none"></div>
+                <div class="absolute right-1/3 -top-10 w-60 h-60 rounded-full bg-purple-600/10 blur-3xl pointer-events-none"></div>
+            </div>
+
+            <!-- SECTION: AI PERSONALIZED PICKS ("FOR YOU") -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white tracking-tight">AI Personalized Recommendations</h2>
+                            <p class="text-xs text-slate-400">Scored dynamically via SQL item similarity & category dwell affinity</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-indigo-400 font-medium hidden sm:inline flex items-center space-x-1">
+                        <i data-lucide="refresh-cw" class="w-3 h-3 inline"></i>
+                        <span>Auto-updates on interaction</span>
+                    </span>
+                </div>
+
+                <!-- CAROUSEL / GRID OF RECOMMENDATIONS -->
+                <div id="recommendations-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- SECTION: TRENDING PRODUCTS RAIL -->
+            <div class="pt-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="p-1.5 rounded-lg bg-amber-500/20 text-amber-400">
+                            <i data-lucide="flame" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white tracking-tight">Trending Across The Store</h2>
+                            <p class="text-xs text-slate-400">Aggregated via SQL Window View <code class="text-amber-300 font-mono text-[11px]">vw_trending_products</code></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="trending-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- SECTION: EXPLORE CATALOG WITH LIVE SEARCH & FILTERS -->
+            <div class="pt-6 border-t border-slate-800">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-white tracking-tight">Explore Full Catalog</h2>
+                        <p class="text-xs text-slate-400">Searchable inventory with real-time stock status</p>
+                    </div>
+
+                    <!-- SEARCH & FILTERS CONTROLS -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <!-- Search input -->
+                        <div class="relative">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="catalog-search" oninput="debounceSearch()" placeholder="Search products, brands, tags..." class="bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-48 sm:w-64">
+                        </div>
+
+                        <!-- Sort dropdown -->
+                        <select id="catalog-sort" onchange="loadCatalog()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                            <option value="featured">Featured First</option>
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="rating">Top Customer Rated</option>
+                            <option value="stock">Low Stock First</option>
+                        </select>
+
+                        <!-- In Stock toggle -->
+                        <label class="flex items-center space-x-1.5 text-xs text-slate-300 cursor-pointer bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg select-none">
+                            <input type="checkbox" id="catalog-instock" onchange="loadCatalog()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+                            <span>In-Stock Only</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- CATEGORY PILL SELECTORS -->
+                <div id="category-pills" class="flex items-center space-x-2 overflow-x-auto pb-3 scrollbar-none">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- CATALOG GRID -->
+                <div id="catalog-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ==================================================================== -->
+        <!-- TAB 2: DBMS & AI ANALYTICS DASHBOARD -->
+        <!-- ==================================================================== -->
+        <section id="tab-analytics" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-white tracking-tight">DBMS & Recommendation Analytics</h1>
+                    <p class="text-xs text-slate-400">Live operational telemetry, Customer Lifetime Value (CLV), and inventory health</p>
+                </div>
+                <button onclick="loadAnalyticsData()" class="self-start sm:self-auto flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 rounded-lg text-xs font-semibold hover:bg-indigo-600/30 transition-colors">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Refresh Metrics</span>
+                </button>
+            </div>
+
+            <!-- KPI SUMMARY CARDS -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-cardBg border border-borderBg rounded-xl p-4">
+                    <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+                        <span>Total Gross Revenue</span>
+                        <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-400"></i>
+                    </div>
+                    <div id="kpi-revenue" class="text-2xl font-bold text-white">$0.00</div>
+                    <div class="text-[11px] text-emerald-400 mt-1 flex items-center space-x-1">
+                        <i data-lucide="check-circle" class="w-3 h-3"></i>
+                        <span>From completed orders</span>
+                    </div>
+                </div>
+
+                <div class="bg-cardBg border border-borderBg rounded-xl p-4">
+                    <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+                        <span>Completed Orders</span>
+                        <i data-lucide="shopping-cart" class="w-4 h-4 text-indigo-400"></i>
+                    </div>
+                    <div id="kpi-orders" class="text-2xl font-bold text-white">0</div>
+                    <div class="text-[11px] text-slate-400 mt-1">ACID transactional integrity</div>
+                </div>
+
+                <div class="bg-cardBg border border-borderBg rounded-xl p-4">
+                    <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+                        <span>Clickstream Events Logged</span>
+                        <i data-lucide="activity" class="w-4 h-4 text-purple-400"></i>
+                    </div>
+                    <div id="kpi-views" class="text-2xl font-bold text-white">0</div>
+                    <div class="text-[11px] text-purple-400 mt-1">Views, dwells & cart adds</div>
+                </div>
+
+                <div class="bg-cardBg border border-borderBg rounded-xl p-4">
+                    <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+                        <span>Low Stock SKUs</span>
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+                    </div>
+                    <div id="kpi-low-stock" class="text-2xl font-bold text-amber-300">0</div>
+                    <div class="text-[11px] text-amber-400 mt-1">Below safety threshold</div>
+                </div>
+            </div>
+
+            <!-- CHARTS ROW -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- CHART 1: CATEGORY CONVERSION VELOCITY -->
+                <div class="bg-cardBg border border-borderBg rounded-xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-white">Units Sold by Product Category</h3>
+                        <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">SQL Aggregation</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="categorySalesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- CHART 2: USER AFFINITY RADAR / BAR -->
+                <div class="bg-cardBg border border-borderBg rounded-xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-white">Active User Category Affinity Scores</h3>
+                        <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">Bayesian Weight</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="userAffinityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLE: CUSTOMER LIFETIME VALUE (CLV) VIEW -->
+            <div class="bg-cardBg border border-borderBg rounded-xl overflow-hidden">
+                <div class="p-4 border-b border-borderBg flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Customer Lifetime Value & Browsing Profiles</h3>
+                        <p class="text-xs text-slate-400">Direct SQL output from <code class="text-indigo-400 font-mono">vw_customer_lifetime_value</code></p>
+                    </div>
+                    <span class="text-xs text-slate-400">Real-time view</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 border-b border-borderBg uppercase font-semibold text-[10px]">
+                            <tr>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Persona Label</th>
+                                <th class="p-3">Segment</th>
+                                <th class="p-3">Orders</th>
+                                <th class="p-3">Total Spend</th>
+                                <th class="p-3">Avg Order</th>
+                                <th class="p-3">Browsing Hits</th>
+                                <th class="p-3">Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clv-table-body" class="divide-y divide-borderBg text-slate-300">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================== -->
+        <!-- TAB 3: LIVE SQL CONSOLE (DBMS INSPECTOR) -->
+        <!-- ==================================================================== -->
+        <section id="tab-sql-console" class="hidden space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
+                    <i data-lucide="terminal" class="w-6 h-6 text-indigo-400"></i>
+                    <span>Live SQL Console & Query Studio</span>
+                </h1>
+                <p class="text-xs text-slate-400 mt-1">Execute raw SQL queries against the live SQLite Capstone database. Test triggers, views, and recommendation algorithms directly!</p>
+            </div>
+
+            <!-- SQL TEMPLATE SHORTCUTS -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-semibold text-slate-400 mr-1">Quick Queries:</span>
+                <button onclick="setSqlTemplate('clv')" class="sql-preset-btn">1. Customer Lifetime Value</button>
+                <button onclick="setSqlTemplate('fbt')" class="sql-preset-btn">2. Frequently Bought Together</button>
+                <button onclick="setSqlTemplate('trending')" class="sql-preset-btn">3. Trending Velocity Window</button>
+                <button onclick="setSqlTemplate('inventory_audit')" class="sql-preset-btn">4. Inventory Audit Trail</button>
+                <button onclick="setSqlTemplate('clickstream')" class="sql-preset-btn">5. Recent Clickstream Dwell</button>
+                <button onclick="setSqlTemplate('similarity_matrix')" class="sql-preset-btn">6. Product Similarity Pairs</button>
+            </div>
+
+            <!-- SQL EDITOR CONTAINER -->
+            <div class="bg-cardBg border border-borderBg rounded-xl p-4 shadow-xl">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span class="font-mono">SQL QUERY (SELECT / INSERT / UPDATE / PRAGMA)</span>
+                    <span id="query-timer" class="text-indigo-400 font-mono hidden">⏱️ 0.00 ms</span>
+                </div>
+                <textarea id="sql-input" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono text-xs text-indigo-200 focus:outline-none focus:border-indigo-500 resize-y leading-relaxed" spellcheck="false">SELECT * FROM vw_frequently_bought_together LIMIT 10;</textarea>
+                
+                <div class="mt-3 flex items-center justify-between">
+                    <span class="text-[11px] text-slate-500">Supports all standard SQL clauses, JOINs, CTEs, Window functions, and Views</span>
+                    <button onclick="executeSqlQuery()" id="btn-run-sql" class="flex items-center space-x-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-all shadow-lg shadow-indigo-600/30">
+                        <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                        <span>Execute SQL</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SQL EXECUTION RESULTS -->
+            <div id="sql-results-card" class="bg-cardBg border border-borderBg rounded-xl overflow-hidden shadow-xl">
+                <div class="p-3 bg-slate-900 border-b border-borderBg flex items-center justify-between text-xs">
+                    <span class="font-bold text-white flex items-center space-x-1.5">
+                        <i data-lucide="table" class="w-4 h-4 text-indigo-400"></i>
+                        <span>Query Execution Result</span>
+                    </span>
+                    <span id="sql-status-badge" class="text-[11px] text-slate-400 font-mono">Ready to execute</span>
+                </div>
+                <div id="sql-error-box" class="hidden p-4 bg-red-950/40 border-b border-red-900/60 text-red-300 text-xs font-mono"></div>
+                <div class="overflow-x-auto max-h-96">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead id="sql-table-head" class="bg-slate-950 text-indigo-300 uppercase text-[10px] sticky top-0 border-b border-slate-800">
+                            <!-- Populated dynamically -->
+                        </thead>
+                        <tbody id="sql-table-body" class="divide-y divide-slate-800 text-slate-300">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================== -->
+        <!-- TAB 4: INVENTORY MANAGEMENT & AUDIT LOG -->
+        <!-- ==================================================================== -->
+        <section id="tab-inventory" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-white tracking-tight">Inventory & Supply Chain Telemetry</h1>
+                    <p class="text-xs text-slate-400">Real-time stock levels, warehouse bins, automated safety thresholds, and 1-click restock</p>
+                </div>
+                <button onclick="loadInventoryData()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium hover:bg-slate-700">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Refresh Stock</span>
+                </button>
+            </div>
+
+            <!-- INVENTORY MASTER TABLE -->
+            <div class="bg-cardBg border border-borderBg rounded-xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900 text-slate-400 border-b border-borderBg uppercase font-semibold text-[10px]">
+                            <tr>
+                                <th class="p-3">SKU</th>
+                                <th class="p-3">Product Name</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Warehouse Hub</th>
+                                <th class="p-3 text-right">Units in Stock</th>
+                                <th class="p-3 text-right">Safety Threshold</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body" class="divide-y divide-borderBg text-slate-300">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RECENT INVENTORY AUDIT LOGS -->
+            <div class="bg-cardBg border border-borderBg rounded-xl p-5 shadow-xl">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Inventory Audit Trail Log</h3>
+                        <p class="text-xs text-slate-400">Immutable ledger of every purchase deduction and restock adjustment</p>
+                    </div>
+                    <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">inventory_logs</span>
+                </div>
+                <div class="overflow-x-auto max-h-72">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-slate-900 text-slate-400 text-[10px] uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-2">Log ID</th>
+                                <th class="p-2">Product</th>
+                                <th class="p-2">Change Type</th>
+                                <th class="p-2 text-right">Delta</th>
+                                <th class="p-2 text-right">Prev / New</th>
+                                <th class="p-2">Reference</th>
+                                <th class="p-2">Logged At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-logs-body" class="divide-y divide-slate-800 text-slate-300 text-[11px]">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================== -->
+        <!-- TAB 5: PAST ORDERS HISTORY -->
+        <!-- ==================================================================== -->
+        <section id="tab-orders" class="hidden space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h1 class="text-2xl font-extrabold text-white tracking-tight">Order History</h1>
+                <p class="text-xs text-slate-400 mt-1">Verified transactional records for active persona <span id="orders-user-name" class="font-semibold text-white">Alex Rivera</span></p>
+            </div>
+
+            <div id="orders-list-container" class="space-y-4">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================================================================== -->
+    <!-- PRODUCT DETAIL & ACTIVE DWELL TIME TRACKING MODAL -->
+    <!-- ==================================================================== -->
+    <div id="product-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
+            
+            <!-- MODAL HEADER WITH ACTIVE DWELL TIME TRACKER -->
+            <div class="sticky top-0 bg-slate-900/95 backdrop-blur-md px-6 py-3 border-b border-slate-800 flex items-center justify-between z-10">
+                <div class="flex items-center space-x-2">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-xs font-mono text-slate-300">Clickstream Active:</span>
+                    <span id="modal-dwell-timer" class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">⏱️ 00:00s</span>
+                </div>
+                <button onclick="closeProductModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- MODAL BODY -->
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Image & Badges -->
+                    <div class="space-y-3">
+                        <div class="aspect-square rounded-xl overflow-hidden bg-slate-800 border border-slate-700 relative">
+                            <img id="modal-product-image" src="" alt="Product" class="w-full h-full object-cover">
+                            <span id="modal-stock-badge" class="absolute top-3 left-3 text-[11px] font-bold px-2 py-1 rounded-md shadow-lg">In Stock</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span>Warehouse: <strong id="modal-warehouse" class="text-slate-200">Hub-Alpha</strong></span>
+                            <span>SKU: <code id="modal-sku" class="text-indigo-400">SKU-123</code></span>
+                        </div>
+                    </div>
+
+                    <!-- Details -->
+                    <div class="flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2 text-xs text-indigo-400 mb-1">
+                                <span id="modal-brand" class="font-semibold uppercase tracking-wider">Brand</span>
+                                <span>•</span>
+                                <span id="modal-category">Category</span>
+                            </div>
+                            <h2 id="modal-title" class="text-xl font-bold text-white leading-snug">Product Title</h2>
+                            
+                            <!-- Rating -->
+                            <div class="flex items-center space-x-2 mt-2">
+                                <div class="flex text-amber-400 text-xs" id="modal-stars">★★★★★</div>
+                                <span id="modal-rating-num" class="text-xs font-bold text-white">4.8</span>
+                                <span id="modal-reviews-count" class="text-xs text-slate-400">(120 reviews)</span>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="flex items-baseline space-x-3 mt-4">
+                                <span id="modal-price" class="text-2xl font-black text-white">$299.99</span>
+                                <span id="modal-orig-price" class="text-sm text-slate-500 line-through">$349.99</span>
+                            </div>
+
+                            <!-- Description -->
+                            <p id="modal-description" class="text-xs text-slate-300 mt-4 leading-relaxed">
+                                Detailed description goes here.
+                            </p>
+                        </div>
+
+                        <!-- CTA Actions -->
+                        <div class="pt-6 border-t border-slate-800 mt-6 space-y-2">
+                            <button id="modal-add-to-cart-btn" onclick="modalAddToCart()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/30">
+                                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                                <span>Add to Cart</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DEDICATED SECTION: FREQUENTLY BOUGHT TOGETHER BUNDLE -->
+                <div class="border-t border-slate-800 pt-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="package-plus" class="w-4 h-4 text-emerald-400"></i>
+                            <h3 class="text-sm font-bold text-white">Frequently Bought Together</h3>
+                        </div>
+                        <span class="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">SQL Association Mining</span>
+                    </div>
+                    <div id="fbt-bundle-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- SECTION: CUSTOMER REVIEWS -->
+                <div class="border-t border-slate-800 pt-6">
+                    <h3 class="text-sm font-bold text-white mb-3">Customer Reviews & Sentiment</h3>
+                    <div id="modal-reviews-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SLIDE-OVER SHOPPING CART DRAWER -->
+    <!-- ==================================================================== -->
+    <div id="cart-drawer-overlay" onclick="toggleCartDrawer()" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden opacity-0 transition-opacity"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-slate-900 border-l border-slate-800 z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+        
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-indigo-400"></i>
+                <h2 class="text-base font-bold text-white">Your Shopping Cart</h2>
+            </div>
+            <button onclick="toggleCartDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- CART FOOTER & ACID CHECKOUT -->
+        <div class="p-4 bg-slate-950 border-t border-slate-800 space-y-3">
+            <div class="space-y-1.5 text-xs text-slate-400">
+                <div class="flex justify-between">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal" class="text-slate-200 font-semibold">$0.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Shipping & Taxes</span>
+                    <span class="text-emerald-400">Free (Instant Digital Hub)</span>
+                </div>
+                <div class="flex justify-between text-sm font-bold text-white pt-2 border-t border-slate-800">
+                    <span>Total Amount</span>
+                    <span id="cart-total" class="text-indigo-400 text-base">$0.00</span>
+                </div>
+            </div>
+
+            <button id="btn-checkout" onclick="performCheckout()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/30">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                <span>Complete Checkout (ACID Trigger)</span>
+            </button>
+            <p class="text-[10px] text-center text-slate-500">Atomic Transaction • Automatically fires SQL Inventory Deductions</p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-800 mt-16 py-8 text-xs text-slate-500 text-center">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-medium text-slate-400">DBMS Capstone: AI-Powered E-Commerce Recommendation Engine & Inventory Tracking System</p>
+            <p>Built with SQLite 3.50+, Python FastAPI, Stored Triggers, Views & Dynamic Behavioral Personalization</p>
+        </div>
+    </footer>
+
+    <!-- App JS -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

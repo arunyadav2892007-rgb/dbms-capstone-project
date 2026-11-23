@@ -1,0 +1,26 @@
+{
+  "name": "nexus-ai-recommendation-dbms",
+  "version": "1.0.0",
+  "description": "AI-Powered E-Commerce Recommendation Engine Database System in Pure Node.js and SQL",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node src/seed.js",
+    "import-amazon": "node src/import_amazon.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "keywords": [
+    "nodejs",
+    "sql",
+    "sqlite",
+    "recommendation-engine",
+    "ecommerce",
+    "dbms-capstone",
+    "clickstream",
+    "inventory-management"
+  ],
+  "author": "Arun Yadav",
+  "license": "MIT"
+}
